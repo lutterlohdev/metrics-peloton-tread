@@ -21,3 +21,19 @@ export function parseWorkoutTimestamp(timestamp) {
   const cleanTimestamp = timestamp.replace(/ \(.+\)$/, '');
   return new Date(cleanTimestamp);
 }
+export function parsePaceMinutes(paceStr) {
+  if (!paceStr) {
+    return null;
+  }
+  // Convert MM:SS format to decimal minutes
+  const parts = paceStr.split(':');
+  if (parts.length !== 2) {
+    return null;
+  }
+  const minutes = parseInt(parts[0], 10);
+  const seconds = parseInt(parts[1], 10);
+  if (isNaN(minutes) || isNaN(seconds)) {
+    return null;
+  }
+  return minutes + seconds / 60;
+}

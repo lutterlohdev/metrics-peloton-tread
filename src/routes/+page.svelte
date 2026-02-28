@@ -1,10 +1,9 @@
 <script>
 	import CsvImporter from '$lib/components/CsvImporter.svelte';
-	import { topFiveRunsByLength, dateFilter } from '$lib/store.js';
+	import { topFiveRunsByLength, dateFilter, averagePaceMetrics } from '$lib/store.js';
 	import { parseWorkoutTimestamp } from '$lib/utils.js';
 	import { onMount } from 'svelte';
     import OutputOverTimeChart from '$lib/components/OutputOverTimeChart.svelte';
-    import AvgPaceOverTimeChart from '$lib/components/AvgPaceOverTimeChart.svelte';
     import InstructorBreakdownChart from '$lib/components/InstructorBreakdownChart.svelte';
 
 	// default to last 3 months
@@ -22,11 +21,18 @@
 		}).format(date);
 	}
 
-	const today = new Date();
-	const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
+	function getDefaultDates() {
+		const today = new Date();
+		const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
+		return {
+			start: formatDate(threeMonthsAgo),
+			end: formatDate(today)
+		};
+	}
 
-	let startDate = formatDate(threeMonthsAgo);
-	let endDate = formatDate(today);
+	const defaults = getDefaultDates();
+	let startDate = defaults.start;
+	let endDate = defaults.end;
 	let selectedDuration = null;
 
 	function updateFilter() {
@@ -34,9 +40,35 @@
 			start: startDate,
 			end: endDate,
 		});
+		// Save to localStorage
+		if (typeof window !== 'undefined') {
+			localStorage.setItem('peloton_date_filter', JSON.stringify({
+				start: startDate,
+				end: endDate
+			}));
+		}
+	}
+
+	function resetToDefault() {
+		startDate = defaults.start;
+		endDate = defaults.end;
+		updateFilter();
 	}
 
 	onMount(() => {
+		// Load from localStorage if available
+		if (typeof window !== 'undefined') {
+			const saved = localStorage.getItem('peloton_date_filter');
+			if (saved) {
+				try {
+					const parsed = JSON.parse(saved);
+					startDate = parsed.start;
+					endDate = parsed.end;
+				} catch (e) {
+					console.warn('Failed to parse saved date filter:', e);
+				}
+			}
+		}
 		updateFilter();
 	});
 
@@ -58,15 +90,31 @@
 		<strong>Start Date:</strong>
 		<input type="date" id="page-start-date" bind:value={startDate} on:change={updateFilter} />
 	</label>
-	<label for="page-end-date">
+	<label for="page-end-date" style="margin-right: 1rem;">
 		<strong>End Date:</strong>
 		<input type="date" id="page-end-date" bind:value={endDate} on:change={updateFilter} />
 	</label>
+	<button
+		on:click={resetToDefault}
+		style="padding: 0.5rem 1rem; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;"
+	>
+		Reset to Default
+	</button>
 </div>
 
 <OutputOverTimeChart />
 
-<AvgPaceOverTimeChart />
+<div style="margin-top: 1.5rem; padding: 1rem; background: #f9f9f9; border-radius: 8px; border: 1px solid #ddd;">
+	<h3 style="margin-top: 0; margin-bottom: 1rem;">Average Pace (within selected date range)</h3>
+	<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+		{#each Object.entries($averagePaceMetrics) as [length, metrics]}
+			<div style="padding: 0.75rem 1rem; background: white; border-radius: 6px; border: 1px solid #ccc;">
+				<strong>{length} min runs:</strong>
+				<span style="font-size: 1.1em; color: #2c3e50; margin-left: 0.5rem;">{metrics.formatted} /mi</span>
+			</div>
+		{/each}
+	</div>
+</div>
 
 <InstructorBreakdownChart />
 

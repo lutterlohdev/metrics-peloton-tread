@@ -1,5 +1,5 @@
 import { writable, derived } from 'svelte/store';
-import { groupWorkoutsBy, sortWorkoutsBy, parseWorkoutTimestamp } from './utils';
+import { groupWorkoutsBy, sortWorkoutsBy, parseWorkoutTimestamp, parsePaceMinutes } from './utils';
 
 // Create a writable store that persists to localStorage
 function createPersistentStore(key, initialValue) {
@@ -131,8 +131,8 @@ export const avgPaceOverTime = derived(
                     const points = workouts
                         .map(workout => {
                             const ts = parseWorkoutTimestamp(workout['Workout Timestamp']);
-                            const pace = parseFloat(workout['Avg. Pace (min/mi)']);
-                            if (!ts || Number.isNaN(pace)) {
+                            const pace = parsePaceMinutes(workout['Avg. Pace (min/mi)']);
+                            if (!ts || pace === null) {
                                 return null;
                             }
                             return {
@@ -201,5 +201,52 @@ export const instructorBreakdown = derived(
                 borderWidth: 2,
             }],
         };
+    }
+);
+export const averagePaceMetrics = derived(
+    [runningWorkouts, dateFilter],
+    ([$runningWorkouts, $dateFilter]) => {
+        let filteredWorkouts = $runningWorkouts;
+
+        if ($dateFilter.start && $dateFilter.end) {
+            const startDate = new Date($dateFilter.start);
+            const endDate = new Date($dateFilter.end);
+
+            filteredWorkouts = $runningWorkouts.filter(workout => {
+                const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
+                return workoutDate >= startDate && workoutDate <= endDate;
+            });
+        }
+
+        const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
+
+        const metrics = {};
+        for (const length in groupedByLength) {
+            if (validRunLengths.includes(parseInt(length))) {
+                const workouts = groupedByLength[length];
+                
+                // Calculate average pace from distance and duration for each workout
+                const paces = workouts
+                    .map(w => {
+                        const distance = parseFloat(w['Distance (mi)']);
+                        const duration = parseInt(w['Length (minutes)'], 10);
+                        if (!distance || !duration || distance === 0) return null;
+                        return duration / distance; // minutes per mile
+                    })
+                    .filter(p => p !== null);
+
+                if (paces.length > 0) {
+                    const avgPace = paces.reduce((a, b) => a + b, 0) / paces.length;
+                    const minutes = Math.floor(avgPace);
+                    const seconds = Math.round((avgPace - minutes) * 60);
+                    metrics[length] = {
+                        avgPace: avgPace.toFixed(2),
+                        formatted: `${minutes}:${seconds.toString().padStart(2, '0')}`
+                    };
+                }
+            }
+        }
+
+        return metrics;
     }
 );

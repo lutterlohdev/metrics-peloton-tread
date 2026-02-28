@@ -110,10 +110,12 @@
                 type: 'time',
             },
             y: {
+                beginAtZero: false,
                 ticks: {
                     callback: function(value) {
                         return value.toFixed(2);
                     },
+                    stepSize: 0.5,
                 },
             },
         },
