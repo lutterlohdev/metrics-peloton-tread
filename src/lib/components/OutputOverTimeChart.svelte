@@ -49,6 +49,7 @@
     }
 
     // compute simple trend (first->last) for each dataset: 'up' | 'down' | 'flat'
+    // note: for output, 'up' is better (increasing output), 'down' is worse (decreasing)
     $: trends = (data?.datasets || []).map(ds => {
         const pts = ds.data || [];
         if (!pts || pts.length < 2) return { label: ds.label, trend: 'flat' };
@@ -121,11 +122,11 @@
                     <div style="display:flex;align-items:center;gap:0.4rem;padding:0.25rem 0.5rem;border-radius:6px;background:#f7f7f7;border:1px solid #eee;">
                         <strong>{t.label}</strong>
                         {#if t.trend === 'up'}
-                            <span style="color:green;font-weight:bold;">▲</span>
+                            <span style="color:green;font-weight:bold;">▲ (improving)</span>
                         {:else if t.trend === 'down'}
-                            <span style="color:#c0392b;font-weight:bold;">▼</span>
+                            <span style="color:#c0392b;font-weight:bold;">▼ (declining)</span>
                         {:else}
-                            <span style="color:#7f8c8d;">—</span>
+                            <span style="color:#7f8c8d;">— (flat)</span>
                         {/if}
                     </div>
                 {/each}
