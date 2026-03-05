@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupWorkoutsBy, sortWorkoutsBy, parseWorkoutTimestamp } from '../utils.js';
+import { groupWorkoutsBy, sortWorkoutsBy, parseWorkoutTimestamp, parsePaceMinutes } from '../utils.js';
 
 describe('utils', () => {
   const workouts = [
@@ -44,6 +44,20 @@ describe('utils', () => {
     it('should handle null input', () => {
       const date = parseWorkoutTimestamp(null);
       expect(date).toBeNull();
+    });
+  });
+
+  describe('parsePaceMinutes', () => {
+    it('should convert MM:SS format to decimal minutes', () => {
+      expect(parsePaceMinutes('9:30')).toBe(9.5);
+      expect(parsePaceMinutes('10:15')).toBe(10.25);
+    });
+
+    it('should return null for invalid or missing input', () => {
+      expect(parsePaceMinutes(null)).toBeNull();
+      expect(parsePaceMinutes('')).toBeNull();
+      expect(parsePaceMinutes('930')).toBeNull();
+      expect(parsePaceMinutes('aa:bb')).toBeNull();
     });
   });
 });

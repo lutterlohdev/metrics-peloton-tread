@@ -1,42 +1,82 @@
-# sv
+# Peloton Tread Metrics Dashboard
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A privacy-focused, browser-based dashboard for analyzing and visualizing your Peloton Tread workout data.
 
-## Creating a project
+## Overview
 
-If you're seeing this, you've probably already done this step. Congrats!
+This application allows you to upload your Peloton workout history (exported in CSV format) and instantly view interactive charts and analytics specifically focused on your Tread workouts to track your fitness progress over time. 
 
-```sh
-# create a new project
-npx sv create my-app
-```
+**Privacy First:** There is no server-side processing or database. All parsing, analysis, and visualization happen completely locally in your browser. None of your workout data is sent to external servers.
 
-To recreate this project with the same configuration:
+## Key Features
 
-```sh
-# recreate this project
-npx sv create --template minimal --no-types --add prettier eslint mcp="ide:gemini+setup:remote" --install npm metrics-peloton-tread
-```
+- **Local CSV Processing**: Fast, client-side ingestion of your exported Peloton CSV files using PapaParse.
+- **Interactive Visualizations**: Dynamic charts displaying metrics like Output Over Time (grouped by typical run lengths like 20m, 30m, 45m).
+- **Trend Indicators**: Track your performance trajectory with built-in trend indicators calculated dynamically.
+- **Data Normalization**: Handles missing data, cleans up timestamps, and ensures charts render smoothly.
+- **Modern Svelte 5 Architecture**: Built entirely with Svelte 5 Runes for elegant reactivity.
 
-## Developing
+## Tech Stack
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- **Framework**: Svelte 5 (Runes) + SvelteKit
+- **Build Tool**: Vite
+- **Charting**: Chart.js (client-side only, via `chart.js/auto` & `chartjs-adapter-date-fns`)
+- **Date Utilities**: date-fns
+- **CSV Parsing**: PapaParse
+- **Formatting & Linting**: ESLint & Prettier
+- **Testing**: Vitest & jsdom
 
-```sh
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v20+ recommended)
+- npm, pnpm, or yarn
+
+### Installation & Development
+
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd metrics-peloton-tread
+
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+### Building for Production
 
-To create a production version of your app:
-
-```sh
+```bash
+# Create a production build (static SPA)
 npm run build
+
+# Preview the build locally
+npm run preview
 ```
 
-You can preview the production build with `npm run preview`.
+### Testing & Code Quality
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+# Run unit tests via Vitest
+npm run test
+
+# Check for linting and formatting issues
+npm run lint
+
+# Automatically fix formatting issues
+npm run format
+```
+
+## How to Get Your Peloton Data
+
+1. Log in to your account at [members.onepeloton.com](https://members.onepeloton.com/).
+2. Navigate to your **Profile** > **Workouts**.
+3. Click **Download Workouts** to obtain your `.csv` file.
+4. Upload this file to the dashboard running locally to view your metrics!
+
+## License
+
+MIT License
