@@ -4,7 +4,7 @@ A privacy-focused, browser-based dashboard for analyzing and visualizing your Pe
 
 ## Overview
 
-This application allows you to upload your Peloton workout history (exported in CSV format) and instantly view interactive charts and analytics specifically focused on your Tread workouts to track your fitness progress over time. 
+This application allows you to upload your Peloton workout history (exported in CSV format) and instantly view interactive charts and analytics specifically focused on your Tread workouts to track your fitness progress over time.
 
 **Privacy First:** There is no server-side processing or database. All parsing, analysis, and visualization happen completely locally in your browser. None of your workout data is sent to external servers.
 
