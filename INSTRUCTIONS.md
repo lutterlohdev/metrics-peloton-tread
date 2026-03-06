@@ -4,11 +4,11 @@ When contributing to the **Peloton Tread Metrics Dashboard**, please adhere stri
 
 ## Core Philosophy & Architecture
 
-1. **Privacy First & Local-Only:** 
+1. **Privacy First & Local-Only:**
    - All data processing must happen client-side in the browser.
    - Do **NOT** add any server-side routes, API endpoints for user data, or database interactions.
    - The user's CSV data is their own, and it must never leave their browser or be transmitted over the internet.
-2. **Framework:** 
+2. **Framework:**
    - We use **Svelte 5** exclusively via **SvelteKit**.
    - Your code must utilize the new **Svelte 5 Runes** system (`$state`, `$derived`, `$effect`, `$props`). Do not use legacy Svelte 4 reactivity patterns (e.g., `export let`, `$:`, `<script context="module">`).
 3. **Build Tool:**
@@ -31,13 +31,14 @@ When contributing to the **Peloton Tread Metrics Dashboard**, please adhere stri
 ## Troubleshooting Vite & Chart.js Errors
 
 If you encounter caching issues or `504` dynamic-import errors related to Chart.js or its adapter:
+
 1. Clear Vite's optimized dependencies cache: `rm -rf node_modules/.vite`
 2. Restart the dev server with forced reoptimization: `npm run dev -- --force`
 3. If problems persist, tell the user to clear their browser cache or use an incognito window if the application acts stale.
 
 ## MCP Tools & Verification (for Gemini)
 
-- If using the Gemini agent, utilize the `svelte-autofixer` MCP tool to analyze generated Svelte code for issues or suggestions *before* presenting the final code to the user.
+- If using the Gemini agent, utilize the `svelte-autofixer` MCP tool to analyze generated Svelte code for issues or suggestions _before_ presenting the final code to the user.
 - If the user asks about Svelte topics, leverage `list-sections` and `get-documentation` from the Svelte MCP server to ensure accuracy.
 
 ## Testing & Code Quality
@@ -49,7 +50,7 @@ If you encounter caching issues or `504` dynamic-import errors related to Chart.
 ## Current & Next Steps
 
 - **Completed:** Client-side CSV upload parsing, Output Over Time Chart.
-- **Upcoming Work:** 
+- **Upcoming Work:**
   - Add tests for data normalization (`src/lib/utils.js`).
   - Implement new chart types (e.g., Heartrate over time, specific fitness discipline breakdowns).
   - Add UI toggles and polish overall accessibility.
