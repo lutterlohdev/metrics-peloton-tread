@@ -143,7 +143,7 @@
 		<canvas bind:this={canvas} style="width:100%; height:100%;"></canvas>
 	</div>
 	<div style="margin-top: 0.5rem; display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-		{#each trends as t}
+		{#each trends as t (t.label)}
 			<div
 				style="display:flex;align-items:center;gap:0.4rem;padding:0.25rem 0.5rem;border-radius:6px;background:#f7f7f7;border:1px solid #eee;"
 			>
@@ -164,7 +164,7 @@
 	>
 		<h3 style="margin-top:0;">Average Pace (within selected date range)</h3>
 		<div style="display:flex; gap:1rem; flex-wrap:wrap;">
-			{#each averagePaces as ap}
+			{#each averagePaces as ap (ap.label)}
 				{#if ap.avgPace !== null}
 					<div
 						style="padding:0.5rem 1rem; background:white; border-radius:6px; border:1px solid #ccc;"
