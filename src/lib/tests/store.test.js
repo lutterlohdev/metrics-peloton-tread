@@ -8,7 +8,9 @@ import {
 	outputOverTime,
 	avgPaceOverTime,
 	instructorBreakdown,
-	averagePaceMetrics
+	averagePaceMetrics,
+	averageHeartRateMetrics,
+	averageCaloriesMetrics
 } from '../store.js';
 
 describe('store derived values', () => {
@@ -20,13 +22,17 @@ describe('store derived values', () => {
 			'Total Output': '150',
 			'Instructor Name': 'Becs Gentry',
 			'Distance (mi)': '2.0',
-			'Avg. Pace (min/mi)': '10:00'
+			'Avg. Pace (min/mi)': '10:00',
+			'Avg. Heart Rate': '140',
+			'Calories Burned': '200'
 		},
 		{
 			'Fitness Discipline': 'Cycling',
 			'Workout Timestamp': '2023-01-02 10:00 (EST)',
 			'Length (minutes)': '30',
-			'Total Output': '250'
+			'Total Output': '250',
+			'Avg. Heart Rate': '150',
+			'Calories Burned': '300'
 		},
 		{
 			'Fitness Discipline': 'Running',
@@ -35,7 +41,9 @@ describe('store derived values', () => {
 			'Total Output': '160',
 			'Instructor Name': 'Matt Wilpers',
 			'Distance (mi)': '2.5',
-			'Avg. Pace (min/mi)': '8:00'
+			'Avg. Pace (min/mi)': '8:00',
+			'Avg. Heart Rate': '150',
+			'Calories Burned': '240'
 		},
 		{
 			'Fitness Discipline': 'Running',
@@ -44,7 +52,9 @@ describe('store derived values', () => {
 			'Total Output': '350',
 			'Instructor Name': 'Becs Gentry',
 			'Distance (mi)': '5.0',
-			'Avg. Pace (min/mi)': '9:00'
+			'Avg. Pace (min/mi)': '9:00',
+			'Avg. Heart Rate': '160',
+			'Calories Burned': '500'
 		}
 	];
 
@@ -109,6 +119,22 @@ describe('store derived values', () => {
 			expect(metrics['20'].formatted).toBe('10:00');
 			expect(metrics['45']).toBeUndefined();
 		});
+
+		it('averageHeartRateMetrics respects date filter', () => {
+			const metrics = get(averageHeartRateMetrics);
+			expect(metrics['20']).toBeDefined();
+			expect(metrics['20'].avgHR).toBe('140');
+			expect(metrics['20'].formatted).toBe('140');
+			expect(metrics['45']).toBeUndefined();
+		});
+
+		it('averageCaloriesMetrics respects date filter', () => {
+			const metrics = get(averageCaloriesMetrics);
+			expect(metrics['20']).toBeDefined();
+			expect(metrics['20'].avgCalories).toBe('200');
+			expect(metrics['20'].formatted).toBe('200');
+			expect(metrics['45']).toBeUndefined();
+		});
 	});
 
 	describe('derivations without date filter', () => {
@@ -153,6 +179,28 @@ describe('store derived values', () => {
 			expect(metrics['45']).toBeDefined();
 			expect(metrics['45'].avgPace).toBe('9.00');
 			expect(metrics['45'].formatted).toBe('9:00');
+		});
+
+		it('averageHeartRateMetrics calculates across all workouts in length', () => {
+			const metrics = get(averageHeartRateMetrics);
+			expect(metrics['20']).toBeDefined();
+			expect(metrics['20'].avgHR).toBe('145'); // (140 + 150) / 2
+			expect(metrics['20'].formatted).toBe('145');
+
+			expect(metrics['45']).toBeDefined();
+			expect(metrics['45'].avgHR).toBe('160');
+			expect(metrics['45'].formatted).toBe('160');
+		});
+
+		it('averageCaloriesMetrics calculates across all workouts in length', () => {
+			const metrics = get(averageCaloriesMetrics);
+			expect(metrics['20']).toBeDefined();
+			expect(metrics['20'].avgCalories).toBe('220'); // (200 + 240) / 2
+			expect(metrics['20'].formatted).toBe('220');
+
+			expect(metrics['45']).toBeDefined();
+			expect(metrics['45'].avgCalories).toBe('500');
+			expect(metrics['45'].formatted).toBe('500');
 		});
 	});
 });

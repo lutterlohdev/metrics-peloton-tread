@@ -4,6 +4,8 @@
 		topFiveRunsByLength,
 		dateFilter,
 		averagePaceMetrics,
+		averageHeartRateMetrics,
+		averageCaloriesMetrics,
 		runTypeFilter,
 		availableRunTypes,
 		topRunsSortMetric
@@ -140,6 +142,30 @@
 					<div class="pace-stat">
 						<span class="pace-label">{length}m</span>
 						<span class="pace-value">{metrics.formatted} <small>/mi</small></span>
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<div class="glass-panel pace-card">
+			<h3>Average Heart Rate</h3>
+			<div class="pace-grid">
+				{#each Object.entries($averageHeartRateMetrics) as [length, metrics] (length)}
+					<div class="pace-stat">
+						<span class="pace-label">{length}m</span>
+						<span class="pace-value">{metrics.formatted} <small>bpm</small></span>
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<div class="glass-panel pace-card">
+			<h3>Average Calories Burned</h3>
+			<div class="pace-grid">
+				{#each Object.entries($averageCaloriesMetrics) as [length, metrics] (length)}
+					<div class="pace-stat">
+						<span class="pace-label">{length}m</span>
+						<span class="pace-value">{metrics.formatted} <small>kcal</small></span>
 					</div>
 				{/each}
 			</div>
