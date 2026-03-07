@@ -1,6 +1,7 @@
 <script>
 	import Papa from 'papaparse';
 	import { workoutData, runningWorkouts } from '$lib/store.js';
+	import { dev } from '$app/environment';
 
 	let dataCount = 0;
 
@@ -25,6 +26,32 @@
 				console.error('Error parsing CSV:', error);
 			}
 		});
+	}
+
+	async function loadDemoData() {
+		try {
+			const response = await fetch('/peloton_sample.csv');
+			if (!response.ok) throw new Error('Failed to fetch demo CSV');
+			const text = await response.text();
+
+			Papa.parse(text, {
+				header: true,
+				complete: (results) => {
+					const cleaned = results.data.filter((row) =>
+						Object.values(row).some(
+							(v) => v !== null && v !== undefined && v.toString().trim() !== ''
+						)
+					);
+					workoutData.set(cleaned);
+					console.log('Demo CSV data stored:', cleaned.length, 'rows');
+				},
+				error: (error) => {
+					console.error('Error parsing Demo CSV:', error);
+				}
+			});
+		} catch (error) {
+			console.error('Error loading demo data:', error);
+		}
 	}
 
 	function clearData() {
@@ -78,6 +105,9 @@
 				style="display: none;"
 			/>
 		</label>
+		{#if dev}
+			<button class="secondary-btn demo-btn" on:click={loadDemoData}> Load Demo Data </button>
+		{/if}
 		<p class="status-text" class:has-data={dataCount > 0}>
 			{dataCount > 0
 				? `✅ ${dataCount} workouts loaded`
@@ -194,9 +224,19 @@
 		color: var(--text-secondary);
 		border-color: var(--border-color);
 	}
-	.secondary-btn:hover {
+	.secondary-btn:hover,
+	.demo-btn:hover {
 		background: rgba(255, 255, 255, 0.1);
 		color: var(--text-primary);
+	}
+	.demo-btn {
+		background: rgba(59, 130, 246, 0.1);
+		color: #93c5fd;
+		border: 1px solid rgba(59, 130, 246, 0.2);
+	}
+	.demo-btn:hover {
+		background: rgba(59, 130, 246, 0.2);
+		color: #bfdbfe;
 	}
 
 	@media (max-width: 768px) {
