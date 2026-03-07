@@ -6,7 +6,7 @@ description: A methodical pipeline for developing new features, from initial und
 2. Checkout the master branch, fetch and pull so its up to date.
 3. Create a new branch appropriately named.
 4. Develop the feature.
-5. Once the feature is working, run `npm run dev -- --open` so the user can see it in the browser. Do not proceed until the user verifies the feature works.
+5. Once the feature is working, run `npm run dev` in the background. Read the terminal output to find the exact local URL and port (e.g. `http://localhost:5173/`). Use your AI Browser Agent (`browser_subagent`) to open that exact URL, click the "Load Demo Data" button to populate the dashboard with the demo dataset, and visually verify that the feature works as expected. Do not proceed until you have successfully verified the feature with the AI Browser Agent.
 6. Add unit tests when appropriate.
 7. Run linting/prettier.
 8. Do a code review and ensure best practices are followed.
