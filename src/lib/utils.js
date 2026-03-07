@@ -10,7 +10,17 @@ export function groupWorkoutsBy(workouts, key) {
 }
 
 export function sortWorkoutsBy(workouts, key) {
-	return [...workouts].sort((a, b) => b[key] - a[key]);
+	return [...workouts].sort((a, b) => {
+		if (key === 'Avg. Pace (min/mi)') {
+			const paceA = parsePaceMinutes(a[key]) || 999;
+			const paceB = parsePaceMinutes(b[key]) || 999;
+			return paceA - paceB; // Ascending: fastest first
+		}
+
+		const valA = parseFloat(a[key]) || 0;
+		const valB = parseFloat(b[key]) || 0;
+		return valB - valA; // Descending: highest first
+	});
 }
 
 export function parseWorkoutTimestamp(timestamp) {
