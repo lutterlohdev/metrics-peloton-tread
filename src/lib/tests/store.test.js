@@ -23,7 +23,7 @@ describe('store derived values', () => {
 			'Instructor Name': 'Becs Gentry',
 			'Distance (mi)': '2.0',
 			'Avg. Pace (min/mi)': '10:00',
-			'Avg. Heart Rate': '140',
+			'Avg. Heartrate': '140',
 			'Calories Burned': '200'
 		},
 		{
@@ -31,7 +31,7 @@ describe('store derived values', () => {
 			'Workout Timestamp': '2023-01-02 10:00 (EST)',
 			'Length (minutes)': '30',
 			'Total Output': '250',
-			'Avg. Heart Rate': '150',
+			'Avg. Heartrate': '150',
 			'Calories Burned': '300'
 		},
 		{
@@ -42,7 +42,7 @@ describe('store derived values', () => {
 			'Instructor Name': 'Matt Wilpers',
 			'Distance (mi)': '2.5',
 			'Avg. Pace (min/mi)': '8:00',
-			'Avg. Heart Rate': '150',
+			'Avg. Heartrate': '150',
 			'Calories Burned': '240'
 		},
 		{
@@ -53,7 +53,7 @@ describe('store derived values', () => {
 			'Instructor Name': 'Becs Gentry',
 			'Distance (mi)': '5.0',
 			'Avg. Pace (min/mi)': '9:00',
-			'Avg. Heart Rate': '160',
+			'Avg. Heartrate': '160',
 			'Calories Burned': '500'
 		}
 	];

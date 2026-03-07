@@ -301,7 +301,7 @@ export const averageHeartRateMetrics = derived(
 
 				const heartRates = workouts
 					.map((w) => {
-						const hr = parseInt(w['Avg. Heart Rate'], 10);
+						const hr = parseInt(w['Avg. Heartrate'], 10);
 						if (isNaN(hr)) return null;
 						return hr;
 					})
