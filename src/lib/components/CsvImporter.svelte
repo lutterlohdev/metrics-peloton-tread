@@ -198,4 +198,20 @@
 		background: rgba(255, 255, 255, 0.1);
 		color: var(--text-primary);
 	}
+
+	@media (max-width: 768px) {
+		.header {
+			justify-content: center;
+		}
+		.upload-area {
+			flex-direction: column;
+			justify-content: center;
+			text-align: center;
+			gap: 1rem;
+		}
+		.action-footer {
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+	}
 </style>
