@@ -276,3 +276,91 @@ export const averagePaceMetrics = derived(
 		return metrics;
 	}
 );
+
+export const averageHeartRateMetrics = derived(
+	[runningWorkouts, dateFilter],
+	([$runningWorkouts, $dateFilter]) => {
+		let filteredWorkouts = $runningWorkouts;
+
+		if ($dateFilter.start && $dateFilter.end) {
+			const startDate = new Date($dateFilter.start);
+			const endDate = new Date($dateFilter.end);
+
+			filteredWorkouts = $runningWorkouts.filter((workout) => {
+				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
+				return workoutDate >= startDate && workoutDate <= endDate;
+			});
+		}
+
+		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
+
+		const metrics = {};
+		for (const length in groupedByLength) {
+			if (validRunLengths.includes(parseInt(length))) {
+				const workouts = groupedByLength[length];
+
+				const heartRates = workouts
+					.map((w) => {
+						const hr = parseInt(w['Avg. Heart Rate'], 10);
+						if (isNaN(hr)) return null;
+						return hr;
+					})
+					.filter((p) => p !== null);
+
+				if (heartRates.length > 0) {
+					const avgHR = heartRates.reduce((a, b) => a + b, 0) / heartRates.length;
+					metrics[length] = {
+						avgHR: avgHR.toFixed(0),
+						formatted: `${Math.round(avgHR)}`
+					};
+				}
+			}
+		}
+
+		return metrics;
+	}
+);
+
+export const averageCaloriesMetrics = derived(
+	[runningWorkouts, dateFilter],
+	([$runningWorkouts, $dateFilter]) => {
+		let filteredWorkouts = $runningWorkouts;
+
+		if ($dateFilter.start && $dateFilter.end) {
+			const startDate = new Date($dateFilter.start);
+			const endDate = new Date($dateFilter.end);
+
+			filteredWorkouts = $runningWorkouts.filter((workout) => {
+				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
+				return workoutDate >= startDate && workoutDate <= endDate;
+			});
+		}
+
+		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
+
+		const metrics = {};
+		for (const length in groupedByLength) {
+			if (validRunLengths.includes(parseInt(length))) {
+				const workouts = groupedByLength[length];
+
+				const calories = workouts
+					.map((w) => {
+						const c = parseInt(w['Calories Burned'], 10);
+						if (isNaN(c)) return null;
+						return c;
+					})
+					.filter((p) => p !== null);
+
+				if (calories.length > 0) {
+					const avgCal = calories.reduce((a, b) => a + b, 0) / calories.length;
+					metrics[length] = {
+						avgCalories: avgCal.toFixed(0),
+						formatted: `${Math.round(avgCal)}`
+					};
+				}
+			}
+		}
+
+		return metrics;
+	}
+);
