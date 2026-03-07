@@ -30,6 +30,7 @@ export const dateFilter = writable({
 });
 
 export const runTypeFilter = writable('All');
+export const topRunsSortMetric = writable('Total Output');
 
 export const availableRunTypes = derived(runningWorkouts, ($runningWorkouts) => {
 	const types = new Set($runningWorkouts.map((w) => w.Type).filter(Boolean));
@@ -37,8 +38,8 @@ export const availableRunTypes = derived(runningWorkouts, ($runningWorkouts) => 
 });
 
 export const topFiveRunsByLength = derived(
-	[runningWorkouts, dateFilter, runTypeFilter],
-	([$runningWorkouts, $dateFilter, $runTypeFilter]) => {
+	[runningWorkouts, dateFilter, runTypeFilter, topRunsSortMetric],
+	([$runningWorkouts, $dateFilter, $runTypeFilter, $topRunsSortMetric]) => {
 		let filteredWorkouts = $runningWorkouts;
 
 		if ($dateFilter.start && $dateFilter.end) {
@@ -60,7 +61,7 @@ export const topFiveRunsByLength = derived(
 
 		for (const length in groupedByLength) {
 			if (validRunLengths.includes(parseInt(length))) {
-				const sorted = sortWorkoutsBy(groupedByLength[length], 'Total Output');
+				const sorted = sortWorkoutsBy(groupedByLength[length], $topRunsSortMetric);
 				topRuns[length] = sorted.slice(0, 5);
 			}
 		}

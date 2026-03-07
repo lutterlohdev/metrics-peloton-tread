@@ -5,7 +5,8 @@
 		dateFilter,
 		averagePaceMetrics,
 		runTypeFilter,
-		availableRunTypes
+		availableRunTypes,
+		topRunsSortMetric
 	} from '$lib/store.js';
 	import { parseWorkoutTimestamp } from '$lib/utils.js';
 	import { onMount } from 'svelte';
@@ -157,12 +158,25 @@
 		<div class="glass-panel top-runs-card">
 			<div class="card-header">
 				<div class="card-title-row">
-					<h2>Top Runs by Duration</h2>
-					<select class="type-filter" bind:value={$runTypeFilter}>
-						{#each $availableRunTypes as type (type)}
-							<option value={type}>{type === 'All' ? 'All Types' : type}</option>
-						{/each}
-					</select>
+					<h2>
+						Top Runs by {$topRunsSortMetric === 'Total Output'
+							? 'Output'
+							: $topRunsSortMetric === 'Distance (mi)'
+								? 'Distance'
+								: 'Pace'}
+					</h2>
+					<div class="filter-group">
+						<select class="type-filter" bind:value={$topRunsSortMetric}>
+							<option value="Total Output">Output</option>
+							<option value="Distance (mi)">Distance</option>
+							<option value="Avg. Pace (min/mi)">Pace</option>
+						</select>
+						<select class="type-filter" bind:value={$runTypeFilter}>
+							{#each $availableRunTypes as type (type)}
+								<option value={type}>{type === 'All' ? 'All Types' : type}</option>
+							{/each}
+						</select>
+					</div>
 				</div>
 				<div class="duration-picker">
 					{#each availableDurations as duration (duration)}
@@ -187,7 +201,13 @@
 									<span class="run-date">{formatFriendlyDate(run['Workout Timestamp'])}</span>
 								</div>
 								<div class="run-metrics">
-									<span class="metric-highlight">{run['Total Output']} kJ</span>
+									{#if $topRunsSortMetric === 'Total Output'}
+										<span class="metric-highlight">{run['Total Output']} kJ</span>
+									{:else if $topRunsSortMetric === 'Distance (mi)'}
+										<span class="metric-highlight">{run['Distance (mi)']} mi</span>
+									{:else if $topRunsSortMetric === 'Avg. Pace (min/mi)'}
+										<span class="metric-highlight">{run['Avg. Pace (min/mi)']} /mi</span>
+									{/if}
 								</div>
 							</div>
 							<div class="run-badges">
@@ -372,6 +392,12 @@
 		align-items: center;
 		flex-wrap: wrap;
 		gap: 1rem;
+	}
+	.filter-group {
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+		flex-wrap: wrap;
 	}
 	.card-header h2 {
 		margin: 0;
