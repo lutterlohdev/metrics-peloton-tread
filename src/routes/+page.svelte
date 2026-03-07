@@ -1,6 +1,12 @@
 <script>
 	import CsvImporter from '$lib/components/CsvImporter.svelte';
-	import { topFiveRunsByLength, dateFilter, averagePaceMetrics } from '$lib/store.js';
+	import {
+		topFiveRunsByLength,
+		dateFilter,
+		averagePaceMetrics,
+		runTypeFilter,
+		availableRunTypes
+	} from '$lib/store.js';
 	import { parseWorkoutTimestamp } from '$lib/utils.js';
 	import { onMount } from 'svelte';
 	import OutputOverTimeChart from '$lib/components/OutputOverTimeChart.svelte';
@@ -76,8 +82,13 @@
 	$: availableDurations = Object.keys($topFiveRunsByLength).sort(
 		(a, b) => parseInt(a) - parseInt(b)
 	);
-	$: if (selectedDuration === null && availableDurations.length > 0) {
-		selectedDuration = availableDurations[0];
+	$: if (
+		selectedDuration === null ||
+		(availableDurations.length > 0 && !availableDurations.includes(selectedDuration))
+	) {
+		selectedDuration = availableDurations[0] || null;
+	} else if (availableDurations.length === 0) {
+		selectedDuration = null;
 	}
 	$: selectedRuns = selectedDuration ? $topFiveRunsByLength[selectedDuration] : [];
 </script>
@@ -124,7 +135,7 @@
 		<div class="glass-panel pace-card">
 			<h3>Average Pace</h3>
 			<div class="pace-grid">
-				{#each Object.entries($averagePaceMetrics) as [length, metrics]}
+				{#each Object.entries($averagePaceMetrics) as [length, metrics] (length)}
 					<div class="pace-stat">
 						<span class="pace-label">{length}m</span>
 						<span class="pace-value">{metrics.formatted} <small>/mi</small></span>
@@ -145,9 +156,16 @@
 
 		<div class="glass-panel top-runs-card">
 			<div class="card-header">
-				<h2>Top Runs by Duration</h2>
+				<div class="card-title-row">
+					<h2>Top Runs by Duration</h2>
+					<select class="type-filter" bind:value={$runTypeFilter}>
+						{#each $availableRunTypes as type (type)}
+							<option value={type}>{type === 'All' ? 'All Types' : type}</option>
+						{/each}
+					</select>
+				</div>
 				<div class="duration-picker">
-					{#each availableDurations as duration}
+					{#each availableDurations as duration (duration)}
 						<button
 							class="duration-btn"
 							class:active={selectedDuration === duration}
@@ -161,7 +179,7 @@
 
 			{#if selectedRuns && selectedRuns.length > 0}
 				<div class="run-list">
-					{#each selectedRuns as run}
+					{#each selectedRuns as run (run['Workout Timestamp'])}
 						<div class="run-item">
 							<div class="run-main">
 								<div class="run-info">
@@ -345,15 +363,15 @@
 	.card-header {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: 1.5rem;
 		margin-bottom: 1.5rem;
 	}
-	@media (min-width: 600px) {
-		.card-header {
-			flex-direction: row;
-			justify-content: space-between;
-			align-items: center;
-		}
+	.card-title-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1rem;
 	}
 	.card-header h2 {
 		margin: 0;
@@ -463,5 +481,25 @@
 		background: rgba(139, 92, 246, 0.15);
 		color: #c4b5fd;
 		border-color: rgba(139, 92, 246, 0.2);
+	}
+
+	.type-filter {
+		background: rgba(0, 0, 0, 0.2);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		color: var(--text-primary);
+		padding: 0.4rem 1rem;
+		border-radius: 6px;
+		font-size: 0.9em;
+		outline: none;
+		cursor: pointer;
+	}
+
+	.type-filter:focus {
+		border-color: var(--accent-primary);
+	}
+
+	.type-filter option {
+		background: #1f2937;
+		color: #fff;
 	}
 </style>

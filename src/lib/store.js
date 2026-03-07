@@ -24,24 +24,50 @@ export const runningWorkouts = derived(workoutData, ($workoutData) =>
 
 const validRunLengths = [5, 10, 15, 20, 30, 45, 60, 90, 120];
 
-export const topFiveRunsByLength = derived(runningWorkouts, ($runningWorkouts) => {
-	const groupedByLength = groupWorkoutsBy($runningWorkouts, 'Length (minutes)');
-	const topRuns = {};
-
-	for (const length in groupedByLength) {
-		if (validRunLengths.includes(parseInt(length))) {
-			const sorted = sortWorkoutsBy(groupedByLength[length], 'Total Output');
-			topRuns[length] = sorted.slice(0, 5);
-		}
-	}
-
-	return topRuns;
-});
-
 export const dateFilter = writable({
 	start: null,
 	end: null
 });
+
+export const runTypeFilter = writable('All');
+
+export const availableRunTypes = derived(runningWorkouts, ($runningWorkouts) => {
+	const types = new Set($runningWorkouts.map((w) => w.Type).filter(Boolean));
+	return ['All', ...Array.from(types).sort()];
+});
+
+export const topFiveRunsByLength = derived(
+	[runningWorkouts, dateFilter, runTypeFilter],
+	([$runningWorkouts, $dateFilter, $runTypeFilter]) => {
+		let filteredWorkouts = $runningWorkouts;
+
+		if ($dateFilter.start && $dateFilter.end) {
+			const startDate = new Date($dateFilter.start);
+			const endDate = new Date($dateFilter.end);
+
+			filteredWorkouts = filteredWorkouts.filter((workout) => {
+				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
+				return workoutDate >= startDate && workoutDate <= endDate;
+			});
+		}
+
+		if ($runTypeFilter !== 'All') {
+			filteredWorkouts = filteredWorkouts.filter((workout) => workout.Type === $runTypeFilter);
+		}
+
+		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
+		const topRuns = {};
+
+		for (const length in groupedByLength) {
+			if (validRunLengths.includes(parseInt(length))) {
+				const sorted = sortWorkoutsBy(groupedByLength[length], 'Total Output');
+				topRuns[length] = sorted.slice(0, 5);
+			}
+		}
+
+		return topRuns;
+	}
+);
 
 function getRandomColor() {
 	const r = Math.floor(Math.random() * 255);
