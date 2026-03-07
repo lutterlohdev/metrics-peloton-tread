@@ -107,6 +107,18 @@
 			},
 			legend: {
 				labels: { color: '#e2e8f0', font: { family: "'Inter', sans-serif" } }
+			},
+			tooltip: {
+				callbacks: {
+					label: function (context) {
+						const point = context.raw;
+						return [
+							`Output: ${point.y}`,
+							`Title: ${point.title}`,
+							`Instructor: ${point.instructor}`
+						];
+					}
+				}
 			}
 		},
 		scales: {
@@ -142,7 +154,7 @@
 	<div
 		style="margin-top: 1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center; justify-content:center;"
 	>
-		{#each trends as t}
+		{#each trends as t (t.label)}
 			<div
 				style="display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border-radius:2rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);"
 			>

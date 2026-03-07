@@ -108,7 +108,9 @@ export const outputOverTime = derived(
 						}
 						return {
 							x: ts.getTime(),
-							y: output
+							y: output,
+							title: workout['Title'] || 'Unknown',
+							instructor: workout['Instructor Name'] || 'Unknown'
 						};
 					})
 					.filter((p) => p !== null)

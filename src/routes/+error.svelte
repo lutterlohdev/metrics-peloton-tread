@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 </script>
 
 <div class="error-container">
@@ -29,7 +30,10 @@
 			{$page.error?.message ||
 				"We couldn't find the page you're looking for. It might have been removed, had its name changed, or is temporarily unavailable."}
 		</p>
-		<a href="/" class="home-btn">Return to Dashboard</a>
+		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+		<button on:click={() => goto('/')} class="home-btn" style="border:none; cursor:pointer;"
+			>Return to Dashboard</button
+		>
 	</div>
 </div>
 
