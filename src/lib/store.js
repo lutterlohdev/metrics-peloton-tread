@@ -30,7 +30,7 @@ export const dateFilter = writable({
 });
 
 export const runTypeFilter = writable('All');
-export const topRunsSortMetric = writable('Total Output');
+export const topRunsSortMetric = writable('Avg. Pace (min/mi)');
 
 export const availableRunTypes = derived(runningWorkouts, ($runningWorkouts) => {
 	const types = new Set($runningWorkouts.map((w) => w.Type).filter(Boolean));
