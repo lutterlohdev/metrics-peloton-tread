@@ -137,18 +137,18 @@
 
 {#if !chartReady}
 	<div
-		style="height: 80vh; display:flex; align-items:center; justify-content:center; color: var(--text-secondary);"
+		style="height: 60vh; display:flex; align-items:center; justify-content:center; color: var(--text-secondary);"
 	>
 		<p>Loading chart...</p>
 	</div>
 {:else if !data || !data.datasets || data.datasets.length === 0}
 	<div
-		style="height: 80vh; display:flex; align-items:center; justify-content:center; color: var(--text-secondary);"
+		style="height: 60vh; display:flex; align-items:center; justify-content:center; color: var(--text-secondary);"
 	>
 		<p>No data to display. Upload a CSV to see charts.</p>
 	</div>
 {:else}
-	<div style="height: 80vh">
+	<div style="height: 60vh">
 		<canvas bind:this={canvas} style="width:100%; height:100%;"></canvas>
 	</div>
 	<div

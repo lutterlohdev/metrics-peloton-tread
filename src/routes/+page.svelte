@@ -179,10 +179,6 @@
 	</aside>
 
 	<main class="main-content">
-		<div class="chart-container glass-panel">
-			<OutputOverTimeChart />
-		</div>
-
 		<div class="glass-panel top-runs-card">
 			<div class="card-header">
 				<div class="card-title-row">
@@ -267,6 +263,11 @@
 				</div>
 			{/if}
 		</div>
+
+		<div class="chart-container glass-panel">
+			<OutputOverTimeChart />
+		</div>
+
 
 		<div class="chart-container glass-panel">
 			<InstructorBreakdownChart />
