@@ -268,7 +268,6 @@
 			<OutputOverTimeChart />
 		</div>
 
-
 		<div class="chart-container glass-panel">
 			<InstructorBreakdownChart />
 		</div>
