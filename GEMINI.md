@@ -1,23 +1,85 @@
-You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
+# AI Agent Guidelines & Architecture
 
-## Available MCP Tools:
+When contributing to the **Peloton Tread Metrics Dashboard**, adhere strictly to the following architectural guidelines, workflow policies, and coding standards. This project is specifically tailored for analyzing Peloton Tread workouts.
 
-### 1. list-sections
+---
 
-Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
-When asked about Svelte or SvelteKit topics, ALWAYS use this tool at the start of the chat to find relevant sections.
+## 1. Branching & Git Policy
 
-### 2. get-documentation
+> [!IMPORTANT]
+> **Direct commits or merges to `master` are strictly prohibited.**
+> Whenever making modifications, if you are currently on the `master` branch:
+>
+> 1. Check out the latest `master` and pull upstream changes.
+> 2. Create and switch to a new dedicated feature or fix branch (e.g. `feature/new-chart`, `fix/parsing-bug`) before making any file modifications.
+> 3. Perform work and commit only on the newly created branch.
 
-Retrieves full documentation content for specific sections. Accepts single or multiple sections.
-After calling the list-sections tool, you MUST analyze the returned documentation sections (especially the use_cases field) and then use the get-documentation tool to fetch ALL documentation sections that are relevant for the user's task.
+---
 
-### 3. svelte-autofixer
+## 2. Core Philosophy & Architecture
 
-Analyzes Svelte code and returns issues and suggestions.
-You MUST use this tool whenever writing Svelte code before sending it to the user. Keep calling it until no issues or suggestions are returned.
+1. **Privacy First & Local-Only:**
+   - All data processing must happen client-side in the browser.
+   - Do **NOT** add any server-side routes, API endpoints for user data, or database interactions.
+   - The user's workout CSV data is their own, and it must never leave their browser or be transmitted over the network.
+2. **Framework & Reactivity:**
+   - We use **Svelte 5** exclusively via **SvelteKit**.
+   - Your code must utilize the new **Svelte 5 Runes** system (`$state`, `$derived`, `$effect`, `$props`). Do not use legacy Svelte 4 reactivity patterns (e.g., `export let`, `$:`, `<script context="module">`).
+3. **Build Tool & Performance:**
+   - Powered by **Vite**. Keep dependencies modern and fast.
 
-### 4. playground-link
+---
 
-Generates a Svelte Playground link with the provided code.
-After completing the code, ask the user if they want a playground link. Only call this tool after user confirmation and NEVER if code was written to files in their project.
+## 3. Data Processing Flow
+
+1. **Ingestion**: Data is uploaded via `src/lib/components/CsvImporter.svelte` and parsed client-side using `papaparse`.
+2. **Normalization**: Extracted data passes through normalization and filtering in `src/lib/utils.js`. Ensure you filter out blank or malformed rows, and defensively check numeric fields and timestamps.
+3. **State Management**: The processed dataset is stored and reactively derived using Svelte 5 state in `src/lib/store.js`.
+
+---
+
+## 4. Charting & Visualization Guidelines
+
+- **Library**: `chart.js` directly with `chartjs-adapter-date-fns` for time scaling.
+- **Browser-Only Initialization**: Chart.js must be dynamically imported or initialized only in the browser (e.g., inside `$effect` or on mount) to avoid Server-Side Rendering (SSR) issues during SvelteKit static site generation.
+- **Defensive Data Checks**: Always verify that `x` (timestamp) and `y` (numeric value) exist and are valid before passing points to Chart.js.
+- **Auto Registration**: Use `chart.js/auto` to ensure all standard components and scales are registered.
+
+### Troubleshooting Vite & Chart.js Errors
+
+If you encounter caching issues or `504` dynamic-import errors related to Chart.js or its adapter:
+
+1. Clear Vite's optimized cache: `rm -rf node_modules/.vite`
+2. Restart the dev server with forced reoptimization: `npm run dev -- --force`
+
+---
+
+## 5. UI/UX & Design System
+
+When creating or modifying UI components, refer to [DESIGN_SYSTEM.md](file:///home/jason/codebase/metrics-peloton-tread/DESIGN_SYSTEM.md) for styling patterns:
+
+- **Theme**: Dark mode palette based on CSS variables defined in `src/app.css` (`--bg-primary`, `--bg-secondary`, `--accent-primary`, etc.).
+- **Glassmorphism**: Use the `.glass-panel` utility class for cards, panels, and distinct visual blocks.
+- **Typography & Components**: Standardize on system fonts (`Inter`), styled `.badge` elements, and responsive CSS Grid/Flexbox layouts with max container width of `1200px`.
+
+---
+
+## 6. Svelte MCP Server Tools
+
+You have access to the Svelte MCP server for comprehensive Svelte 5 and SvelteKit documentation and tooling:
+
+- **`list-sections`**: Use FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths.
+- **`get-documentation`**: Retrieves full documentation content for specific sections. After calling `list-sections`, fetch documentation sections relevant for the task.
+- **`svelte-autofixer`**: Analyzes Svelte code and returns issues and suggestions. Run this tool whenever writing Svelte code before finalizing changes. Keep calling it until no issues or suggestions are returned.
+- **`playground-link`**: Generates a Svelte Playground link. Ask the user if they want a playground link after completing code, and NEVER call this if code was written to files in the project.
+
+---
+
+## 7. Testing, Verification & Code Quality
+
+Always verify your changes before finalizing:
+
+- **Tests**: `npm test -- --run` (Vitest with `jsdom`). Ensure any new utilities or stores have corresponding tests in `src/lib/tests/`.
+- **Type Checking**: `npm run check` (`svelte-check`).
+- **Linting & Formatting**: `npm run lint` and `npm run format` (ESLint + Prettier with Svelte plugins).
+- **Build**: `npm run build` to verify static SPA compilation via `@sveltejs/adapter-static`.
