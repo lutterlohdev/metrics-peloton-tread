@@ -1,5 +1,11 @@
 import { writable, derived } from 'svelte/store';
-import { groupWorkoutsBy, sortWorkoutsBy, parseWorkoutTimestamp, parsePaceMinutes } from './utils';
+import {
+	groupWorkoutsBy,
+	sortWorkoutsBy,
+	parseWorkoutTimestamp,
+	parsePaceMinutes,
+	filterWorkoutsByDate
+} from './utils';
 
 // Create a writable store that persists to localStorage
 function createPersistentStore(key, initialValue) {
@@ -40,17 +46,7 @@ export const availableRunTypes = derived(runningWorkouts, ($runningWorkouts) => 
 export const topFiveRunsByLength = derived(
 	[runningWorkouts, dateFilter, runTypeFilter, topRunsSortMetric],
 	([$runningWorkouts, $dateFilter, $runTypeFilter, $topRunsSortMetric]) => {
-		let filteredWorkouts = $runningWorkouts;
-
-		if ($dateFilter.start && $dateFilter.end) {
-			const startDate = new Date($dateFilter.start);
-			const endDate = new Date($dateFilter.end);
-
-			filteredWorkouts = filteredWorkouts.filter((workout) => {
-				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
-				return workoutDate >= startDate && workoutDate <= endDate;
-			});
-		}
+		let filteredWorkouts = filterWorkoutsByDate($runningWorkouts, $dateFilter);
 
 		if ($runTypeFilter !== 'All') {
 			filteredWorkouts = filteredWorkouts.filter((workout) => workout.Type === $runTypeFilter);
@@ -80,17 +76,7 @@ function getRandomColor() {
 export const outputOverTime = derived(
 	[runningWorkouts, dateFilter],
 	([$runningWorkouts, $dateFilter]) => {
-		let filteredWorkouts = $runningWorkouts;
-
-		if ($dateFilter.start && $dateFilter.end) {
-			const startDate = new Date($dateFilter.start);
-			const endDate = new Date($dateFilter.end);
-
-			filteredWorkouts = $runningWorkouts.filter((workout) => {
-				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
-				return workoutDate >= startDate && workoutDate <= endDate;
-			});
-		}
+		const filteredWorkouts = filterWorkoutsByDate($runningWorkouts, $dateFilter);
 
 		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
 
@@ -133,17 +119,7 @@ export const outputOverTime = derived(
 export const avgPaceOverTime = derived(
 	[runningWorkouts, dateFilter],
 	([$runningWorkouts, $dateFilter]) => {
-		let filteredWorkouts = $runningWorkouts;
-
-		if ($dateFilter.start && $dateFilter.end) {
-			const startDate = new Date($dateFilter.start);
-			const endDate = new Date($dateFilter.end);
-
-			filteredWorkouts = $runningWorkouts.filter((workout) => {
-				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
-				return workoutDate >= startDate && workoutDate <= endDate;
-			});
-		}
+		const filteredWorkouts = filterWorkoutsByDate($runningWorkouts, $dateFilter);
 
 		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
 
@@ -184,17 +160,7 @@ export const avgPaceOverTime = derived(
 export const instructorBreakdown = derived(
 	[runningWorkouts, dateFilter],
 	([$runningWorkouts, $dateFilter]) => {
-		let filteredWorkouts = $runningWorkouts;
-
-		if ($dateFilter.start && $dateFilter.end) {
-			const startDate = new Date($dateFilter.start);
-			const endDate = new Date($dateFilter.end);
-
-			filteredWorkouts = $runningWorkouts.filter((workout) => {
-				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
-				return workoutDate >= startDate && workoutDate <= endDate;
-			});
-		}
+		const filteredWorkouts = filterWorkoutsByDate($runningWorkouts, $dateFilter);
 
 		// count workouts by instructor
 		const instructorCounts = {};
@@ -232,17 +198,7 @@ export const instructorBreakdown = derived(
 export const averagePaceMetrics = derived(
 	[runningWorkouts, dateFilter],
 	([$runningWorkouts, $dateFilter]) => {
-		let filteredWorkouts = $runningWorkouts;
-
-		if ($dateFilter.start && $dateFilter.end) {
-			const startDate = new Date($dateFilter.start);
-			const endDate = new Date($dateFilter.end);
-
-			filteredWorkouts = $runningWorkouts.filter((workout) => {
-				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
-				return workoutDate >= startDate && workoutDate <= endDate;
-			});
-		}
+		const filteredWorkouts = filterWorkoutsByDate($runningWorkouts, $dateFilter);
 
 		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
 
@@ -280,17 +236,7 @@ export const averagePaceMetrics = derived(
 export const averageHeartRateMetrics = derived(
 	[runningWorkouts, dateFilter],
 	([$runningWorkouts, $dateFilter]) => {
-		let filteredWorkouts = $runningWorkouts;
-
-		if ($dateFilter.start && $dateFilter.end) {
-			const startDate = new Date($dateFilter.start);
-			const endDate = new Date($dateFilter.end);
-
-			filteredWorkouts = $runningWorkouts.filter((workout) => {
-				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
-				return workoutDate >= startDate && workoutDate <= endDate;
-			});
-		}
+		const filteredWorkouts = filterWorkoutsByDate($runningWorkouts, $dateFilter);
 
 		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
 
@@ -324,17 +270,7 @@ export const averageHeartRateMetrics = derived(
 export const averageCaloriesMetrics = derived(
 	[runningWorkouts, dateFilter],
 	([$runningWorkouts, $dateFilter]) => {
-		let filteredWorkouts = $runningWorkouts;
-
-		if ($dateFilter.start && $dateFilter.end) {
-			const startDate = new Date($dateFilter.start);
-			const endDate = new Date($dateFilter.end);
-
-			filteredWorkouts = $runningWorkouts.filter((workout) => {
-				const workoutDate = parseWorkoutTimestamp(workout['Workout Timestamp']);
-				return workoutDate >= startDate && workoutDate <= endDate;
-			});
-		}
+		const filteredWorkouts = filterWorkoutsByDate($runningWorkouts, $dateFilter);
 
 		const groupedByLength = groupWorkoutsBy(filteredWorkouts, 'Length (minutes)');
 
