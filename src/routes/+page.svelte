@@ -11,14 +11,14 @@
 		availableRunTypes,
 		topRunsSortMetric
 	} from '$lib/store.js';
-	import { parseWorkoutTimestamp } from '$lib/utils.js';
+	import { parseWorkoutTimestamp, formatLocalDate } from '$lib/utils.js';
 	import { onMount } from 'svelte';
 	import OutputOverTimeChart from '$lib/components/OutputOverTimeChart.svelte';
 	import InstructorBreakdownChart from '$lib/components/InstructorBreakdownChart.svelte';
 
 	// default to last 3 months
 	function formatDate(d) {
-		return d.toISOString().slice(0, 10);
+		return formatLocalDate(d);
 	}
 
 	function formatFriendlyDate(timestamp) {

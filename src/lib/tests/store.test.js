@@ -135,6 +135,26 @@ describe('store derived values', () => {
 			expect(metrics['20'].formatted).toBe('200');
 			expect(metrics['45']).toBeUndefined();
 		});
+
+		it('includes workouts occurring on the end date / current day', () => {
+			// Setting end date to Jan 1 (same day as first run at 09:00 EST)
+			dateFilter.set({ start: '2023-01-01', end: '2023-01-01' });
+
+			const topRuns = get(topFiveRunsByLength);
+			expect(topRuns['20']).toBeDefined();
+			expect(topRuns['20'].length).toBe(1);
+			expect(topRuns['20'][0]['Total Output']).toBe('150');
+
+			const { datasets } = get(outputOverTime);
+			expect(datasets.length).toBe(1);
+			expect(datasets[0].data.length).toBe(1);
+
+			// Setting end date to Jan 3 includes Jan 1 and Jan 3 runs
+			dateFilter.set({ start: '2023-01-01', end: '2023-01-03' });
+			const runsThroughJan3 = get(topFiveRunsByLength);
+			expect(runsThroughJan3['20'].length).toBe(2);
+			expect(runsThroughJan3['45']).toBeUndefined(); // Jan 4 is excluded
+		});
 	});
 
 	describe('derivations without date filter', () => {
