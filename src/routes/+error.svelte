@@ -1,6 +1,7 @@
 <script>
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 </script>
 
 <div class="error-container">
@@ -24,16 +25,19 @@
 				<line x1="12" y1="17" x2="12.01" y2="17" />
 			</svg>
 		</div>
-		<h1>{$page.status}</h1>
-		<h2>Oops! Page {$page.status === 404 ? 'Not Found' : 'Error'}</h2>
+		<h1>{page.status}</h1>
+		<h2>Oops! Page {page.status === 404 ? 'Not Found' : 'Error'}</h2>
 		<p class="error-message">
-			{$page.error?.message ||
+			{page.error?.message ||
 				"We couldn't find the page you're looking for. It might have been removed, had its name changed, or is temporarily unavailable."}
 		</p>
-		<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-		<button on:click={() => goto('/')} class="home-btn" style="border:none; cursor:pointer;"
-			>Return to Dashboard</button
+		<button
+			onclick={() => goto(resolve('/'))}
+			class="home-btn"
+			style="border:none; cursor:pointer;"
 		>
+			Return to Dashboard
+		</button>
 	</div>
 </div>
 

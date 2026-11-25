@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { outputOverTime } from '$lib/store.js';
+	import { outputOverTime } from '#lib/store.js';
 
 	let canvas;
 	let chart = null;
@@ -160,13 +160,13 @@
 			>
 				<strong style="color:var(--text-primary); font-size:0.9rem;">{t.label}</strong>
 				{#if t.trend === 'up'}
-					<span style="color:var(--accent-success);font-weight:600;font-size:0.9rem;"
-						>▲ <small>improving</small></span
-					>
+					<span style="color:var(--accent-success);font-weight:600;font-size:0.9rem;">
+						▲ <small>improving</small>
+					</span>
 				{:else if t.trend === 'down'}
-					<span style="color:var(--accent-danger);font-weight:600;font-size:0.9rem;"
-						>▼ <small>declining</small></span
-					>
+					<span style="color:var(--accent-danger);font-weight:600;font-size:0.9rem;">
+						▼ <small>declining</small>
+					</span>
 				{:else}
 					<span style="color:var(--text-muted);font-size:0.9rem;">— <small>flat</small></span>
 				{/if}
