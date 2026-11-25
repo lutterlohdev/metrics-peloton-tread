@@ -7,7 +7,8 @@ import {
 	formatLocalDate,
 	parseDateBoundary,
 	isWorkoutInDateRange,
-	filterWorkoutsByDate
+	filterWorkoutsByDate,
+	getDatasetDateRange
 } from '../utils.js';
 
 describe('utils', () => {
@@ -177,6 +178,34 @@ describe('utils', () => {
 				end: '2026-11-01'
 			});
 			expect(onlyEnd.length).toBe(4); // 1 on Oct 31 + 3 on Nov 1
+		});
+	});
+
+	describe('getDatasetDateRange', () => {
+		it('finds the latest workout timestamp across unordered rows and shifts 6 months back', () => {
+			const unordered = [
+				{ 'Workout Timestamp': '2026-01-15 08:00 (-06)' },
+				{ 'Workout Timestamp': '2026-02-22 11:41 (-06)' },
+				{ 'Workout Timestamp': '2025-10-21 19:11 (-05)' }
+			];
+			expect(getDatasetDateRange(unordered)).toEqual({
+				start: '2025-08-22',
+				end: '2026-02-22'
+			});
+		});
+
+		it('clamps month-end dates properly when subtracting 6 months', () => {
+			const endOfAugust = [{ 'Workout Timestamp': '2026-08-31 09:00 (-05)' }];
+			expect(getDatasetDateRange(endOfAugust, 6)).toEqual({
+				start: '2026-02-28',
+				end: '2026-08-31'
+			});
+		});
+
+		it('returns null for empty or invalid workout arrays', () => {
+			expect(getDatasetDateRange(null)).toBeNull();
+			expect(getDatasetDateRange([])).toBeNull();
+			expect(getDatasetDateRange([{ 'Workout Timestamp': 'invalid' }])).toBeNull();
 		});
 	});
 });

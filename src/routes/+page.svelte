@@ -4,6 +4,7 @@
 		workoutData,
 		topFiveRunsByLength,
 		dateFilter,
+		setDateFilter,
 		averagePaceMetrics,
 		averageHeartRateMetrics,
 		averageCaloriesMetrics,
@@ -11,15 +12,11 @@
 		availableRunTypes,
 		topRunsSortMetric
 	} from '#lib/store.js';
-	import { parseWorkoutTimestamp, formatLocalDate } from '#lib/utils.js';
+	import { parseWorkoutTimestamp, formatLocalDate, getDatasetDateRange } from '#lib/utils.js';
+	import { subMonths } from 'date-fns';
 	import { onMount } from 'svelte';
 	import OutputOverTimeChart from '#lib/components/OutputOverTimeChart.svelte';
 	import InstructorBreakdownChart from '#lib/components/InstructorBreakdownChart.svelte';
-
-	// default to last 3 months
-	function formatDate(d) {
-		return formatLocalDate(d);
-	}
 
 	function formatFriendlyDate(timestamp) {
 		const date = parseWorkoutTimestamp(timestamp);
@@ -33,38 +30,32 @@
 
 	function getDefaultDates() {
 		const today = new Date();
-		const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
+		const sixMonthsAgo = subMonths(today, 6);
 		return {
-			start: formatDate(threeMonthsAgo),
-			end: formatDate(today)
+			start: formatLocalDate(sixMonthsAgo),
+			end: formatLocalDate(today)
 		};
 	}
 
-	const defaults = getDefaultDates();
-	let startDate = defaults.start;
-	let endDate = defaults.end;
-	let selectedDuration = null;
+	let selectedDuration = $state(null);
 
-	function updateFilter() {
-		dateFilter.set({
-			start: startDate,
-			end: endDate
+	function handleStartDateChange(event) {
+		setDateFilter({
+			start: event.currentTarget.value,
+			end: $dateFilter.end
 		});
-		if (typeof window !== 'undefined') {
-			localStorage.setItem(
-				'peloton_date_filter',
-				JSON.stringify({
-					start: startDate,
-					end: endDate
-				})
-			);
-		}
+	}
+
+	function handleEndDateChange(event) {
+		setDateFilter({
+			start: $dateFilter.start,
+			end: event.currentTarget.value
+		});
 	}
 
 	function resetToDefault() {
-		startDate = defaults.start;
-		endDate = defaults.end;
-		updateFilter();
+		const range = getDatasetDateRange($workoutData, 6) ?? getDefaultDates();
+		setDateFilter(range);
 	}
 
 	onMount(() => {
@@ -73,28 +64,35 @@
 			if (saved) {
 				try {
 					const parsed = JSON.parse(saved);
-					startDate = parsed.start;
-					endDate = parsed.end;
+					if (parsed?.start && parsed?.end) {
+						setDateFilter(parsed);
+						return;
+					}
 				} catch (e) {
 					console.warn('Failed to parse saved date filter:', e);
 				}
 			}
 		}
-		updateFilter();
+		const initialRange = getDatasetDateRange($workoutData, 6) ?? getDefaultDates();
+		setDateFilter(initialRange);
 	});
 
-	$: availableDurations = Object.keys($topFiveRunsByLength).sort(
-		(a, b) => parseInt(a) - parseInt(b)
+	let availableDurations = $derived(
+		Object.keys($topFiveRunsByLength).sort((a, b) => parseInt(a) - parseInt(b))
 	);
-	$: if (
-		selectedDuration === null ||
-		(availableDurations.length > 0 && !availableDurations.includes(selectedDuration))
-	) {
-		selectedDuration = availableDurations[0] || null;
-	} else if (availableDurations.length === 0) {
-		selectedDuration = null;
-	}
-	$: selectedRuns = selectedDuration ? $topFiveRunsByLength[selectedDuration] : [];
+
+	$effect(() => {
+		if (
+			selectedDuration === null ||
+			(availableDurations.length > 0 && !availableDurations.includes(selectedDuration))
+		) {
+			selectedDuration = availableDurations[0] || null;
+		} else if (availableDurations.length === 0) {
+			selectedDuration = null;
+		}
+	});
+
+	let selectedRuns = $derived(selectedDuration ? $topFiveRunsByLength[selectedDuration] : []);
 </script>
 
 <header class="dashboard-header">
@@ -132,13 +130,13 @@
 			<div class="filter-controls">
 				<label class="input-group">
 					<span>Start Date</span>
-					<input type="date" bind:value={startDate} on:change={updateFilter} />
+					<input type="date" value={$dateFilter.start ?? ''} onchange={handleStartDateChange} />
 				</label>
 				<label class="input-group">
 					<span>End Date</span>
-					<input type="date" bind:value={endDate} on:change={updateFilter} />
+					<input type="date" value={$dateFilter.end ?? ''} onchange={handleEndDateChange} />
 				</label>
-				<button class="ghost-btn" on:click={resetToDefault}> Reset Dates </button>
+				<button class="ghost-btn" onclick={resetToDefault}> Reset Dates </button>
 			</div>
 		</div>
 
@@ -208,7 +206,7 @@
 						<button
 							class="duration-btn"
 							class:active={selectedDuration === duration}
-							on:click={() => (selectedDuration = duration)}
+							onclick={() => (selectedDuration = duration)}
 						>
 							{duration}m
 						</button>

@@ -1,10 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { get } from 'svelte/store';
+import Papa from 'papaparse';
+import sampleCsv from '../../data/sample.csv?raw';
 import {
 	workoutData,
 	runningWorkouts,
 	topFiveRunsByLength,
 	dateFilter,
+	applyImportedWorkouts,
 	outputOverTime,
 	avgPaceOverTime,
 	instructorBreakdown,
@@ -221,6 +224,36 @@ describe('store derived values', () => {
 			expect(metrics['45']).toBeDefined();
 			expect(metrics['45'].avgCalories).toBe('500');
 			expect(metrics['45'].formatted).toBe('500');
+		});
+	});
+
+	describe('consolidated sample.csv dataset', () => {
+		it('parses cleanly, shifts dateFilter to latest date and 6 months back, and populates derivations', () => {
+			const parsed = Papa.parse(sampleCsv, { header: true });
+			const cleaned = parsed.data.filter((row) =>
+				Object.values(row).some((v) => v !== null && v !== undefined && v.toString().trim() !== '')
+			);
+			expect(cleaned.length).toBe(103);
+
+			applyImportedWorkouts(cleaned);
+
+			expect(get(dateFilter)).toEqual({
+				start: '2025-08-22',
+				end: '2026-02-22'
+			});
+			if (typeof localStorage !== 'undefined') {
+				expect(JSON.parse(localStorage.getItem('peloton_date_filter'))).toEqual({
+					start: '2025-08-22',
+					end: '2026-02-22'
+				});
+			}
+
+			const runs = get(runningWorkouts);
+			expect(runs.length).toBe(49);
+			expect(Object.keys(get(topFiveRunsByLength)).length).toBeGreaterThan(0);
+			expect(get(outputOverTime).datasets.length).toBeGreaterThan(0);
+			expect(get(avgPaceOverTime).datasets.length).toBeGreaterThan(0);
+			expect(Object.keys(get(averagePaceMetrics)).length).toBeGreaterThan(0);
 		});
 	});
 });

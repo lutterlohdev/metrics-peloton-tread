@@ -1,9 +1,15 @@
 <script>
 	import Papa from 'papaparse';
-	import { workoutData, runningWorkouts } from '#lib/store.js';
+	import { workoutData, runningWorkouts, applyImportedWorkouts } from '#lib/store.js';
 	import { dev } from '$app/env';
 
-	let dataCount = 0;
+	let dataCount = $derived($workoutData.length);
+
+	function cleanWorkouts(rows) {
+		return rows.filter((row) =>
+			Object.values(row).some((v) => v !== null && v !== undefined && v.toString().trim() !== '')
+		);
+	}
 
 	function handleFileSelect(event) {
 		const file = event.target.files[0];
@@ -14,35 +20,27 @@
 		Papa.parse(file, {
 			header: true,
 			complete: (results) => {
-				const cleaned = results.data.filter((row) =>
-					Object.values(row).some(
-						(v) => v !== null && v !== undefined && v.toString().trim() !== ''
-					)
-				);
-				workoutData.set(cleaned);
+				const cleaned = cleanWorkouts(results.data);
+				applyImportedWorkouts(cleaned);
 				console.log('CSV data stored (cleaned):', cleaned);
 			},
 			error: (error) => {
 				console.error('Error parsing CSV:', error);
 			}
 		});
+		event.target.value = '';
 	}
 
 	async function loadDemoData() {
+		if (!import.meta.env.DEV) return;
 		try {
-			const response = await fetch('/peloton_sample.csv');
-			if (!response.ok) throw new Error('Failed to fetch demo CSV');
-			const text = await response.text();
+			const { default: text } = await import('../../data/sample.csv?raw');
 
 			Papa.parse(text, {
 				header: true,
 				complete: (results) => {
-					const cleaned = results.data.filter((row) =>
-						Object.values(row).some(
-							(v) => v !== null && v !== undefined && v.toString().trim() !== ''
-						)
-					);
-					workoutData.set(cleaned);
+					const cleaned = cleanWorkouts(results.data);
+					applyImportedWorkouts(cleaned);
 					console.log('Demo CSV data stored:', cleaned.length, 'rows');
 				},
 				error: (error) => {
@@ -61,16 +59,15 @@
 		}
 	}
 
-	workoutData.subscribe((value) => {
-		dataCount = value.length;
-		if (value.length > 0) {
-			console.log('All workout data from store:', value);
+	$effect(() => {
+		if ($workoutData.length > 0) {
+			console.log('All workout data from store:', $workoutData);
 		}
 	});
 
-	runningWorkouts.subscribe((value) => {
-		if (value.length > 0) {
-			console.log('Running workouts from derived store:', value);
+	$effect(() => {
+		if ($runningWorkouts.length > 0) {
+			console.log('Running workouts from derived store:', $runningWorkouts);
 		}
 	});
 </script>
@@ -105,12 +102,12 @@
 				type="file"
 				id="csv-importer"
 				accept=".csv"
-				on:change={handleFileSelect}
+				onchange={handleFileSelect}
 				style="display: none;"
 			/>
 		</label>
 		{#if dev}
-			<button class="secondary-btn demo-btn" on:click={loadDemoData}> Load Demo Data </button>
+			<button class="secondary-btn demo-btn" onclick={loadDemoData}> Load Demo Data </button>
 		{/if}
 		<p class="status-text" class:has-data={dataCount > 0}>
 			{dataCount > 0
@@ -121,14 +118,14 @@
 
 	{#if dataCount > 0}
 		<div class="action-footer">
-			<button on:click={clearData} class="danger-btn"> Clear Data </button>
+			<button onclick={clearData} class="danger-btn"> Clear Data </button>
 			<label for="csv-importer-replace" class="secondary-btn">
 				Replace Data
 				<input
 					type="file"
 					id="csv-importer-replace"
 					accept=".csv"
-					on:change={handleFileSelect}
+					onchange={handleFileSelect}
 					style="display: none;"
 				/>
 			</label>

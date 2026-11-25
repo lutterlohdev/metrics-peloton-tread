@@ -1,3 +1,5 @@
+import { subMonths } from 'date-fns';
+
 export function groupWorkoutsBy(workouts, key) {
 	return workouts.reduce((acc, workout) => {
 		const group = workout[key];
@@ -117,6 +119,31 @@ export function filterWorkoutsByDate(workouts, dateFilter) {
 		return true;
 	});
 }
+
+export function getDatasetDateRange(workouts, monthsBack = 6) {
+	if (!workouts || !Array.isArray(workouts) || workouts.length === 0) {
+		return null;
+	}
+
+	let latestDate = null;
+	for (const workout of workouts) {
+		const dt = parseWorkoutTimestamp(workout?.['Workout Timestamp']);
+		if (dt && (!latestDate || dt > latestDate)) {
+			latestDate = dt;
+		}
+	}
+
+	if (!latestDate) {
+		return null;
+	}
+
+	const startDate = subMonths(latestDate, monthsBack);
+	return {
+		start: formatLocalDate(startDate),
+		end: formatLocalDate(latestDate)
+	};
+}
+
 export function parsePaceMinutes(paceStr) {
 	if (!paceStr) {
 		return null;
