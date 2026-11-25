@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { instructorBreakdown } from '$lib/store.js';
+	import { instructorBreakdown } from '#lib/store.js';
 
 	let canvas;
 	let chart = null;
