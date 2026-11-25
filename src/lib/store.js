@@ -4,7 +4,8 @@ import {
 	sortWorkoutsBy,
 	parseWorkoutTimestamp,
 	parsePaceMinutes,
-	filterWorkoutsByDate
+	filterWorkoutsByDate,
+	getDatasetDateRange
 } from './utils';
 
 // Create a writable store that persists to localStorage
@@ -34,6 +35,21 @@ export const dateFilter = writable({
 	start: null,
 	end: null
 });
+
+export function setDateFilter(range) {
+	dateFilter.set(range);
+	if (typeof window !== 'undefined') {
+		localStorage.setItem('peloton_date_filter', JSON.stringify(range));
+	}
+}
+
+export function applyImportedWorkouts(workouts) {
+	workoutData.set(workouts);
+	const range = getDatasetDateRange(workouts, 6);
+	if (range) {
+		setDateFilter(range);
+	}
+}
 
 export const runTypeFilter = writable('All');
 export const topRunsSortMetric = writable('Avg. Pace (min/mi)');
